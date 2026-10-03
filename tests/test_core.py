@@ -237,6 +237,25 @@ def test_elevenlabs_contract_and_cache(tmp_path, monkeypatch):
     assert len(calls) == 1
 
 
+def test_openai_speech_contract_and_estimated_captions(tmp_path, monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "test-secret")
+    mp3 = tmp_path / "fixture.mp3"
+    subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-f", "lavfi", "-i",
+                    "anullsrc=r=44100:cl=mono", "-t", "1", str(mp3)], check=True)
+    def handler(request):
+        assert request.url.path == "/v1/audio/speech"
+        assert request.headers["Authorization"] == "Bearer test-secret"
+        body = json.loads(request.content)
+        assert body == {"model": "tts-1", "voice": "alloy", "input": "hello", "response_format": "mp3"}
+        return httpx.Response(200, headers={"x-request-id": "req_openai"}, content=mp3.read_bytes())
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    report = synthesize("hello", RenderOptions(provider="openai", model_id="tts-1", voice_id="alloy"),
+                        tmp_path / "cache", client=client)
+    assert report["timing_source"] == "estimated_proportional_timing"
+    assert report["request_id"] == "req_openai"
+    assert report["provider_character_cost"] is None
+
+
 def test_studio_routes_and_origin_protection(tmp_path):
     client = TestClient(create_app(tmp_path))
     assert client.get("/api/config").status_code == 200

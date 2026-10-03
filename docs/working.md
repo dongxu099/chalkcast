@@ -6,7 +6,7 @@
 - Created an independent public-safe project skeleton.
 - Chose a declarative renderer and server-side credentials.
 - Implemented CLI, local Studio, timestamp narration, estimated cost comparison and an agent skill.
-- Verified 27 offline tests, Ruff, skill metadata and a real 19.625-second FFmpeg render.
+- Verified 28 offline tests, Ruff, skill metadata and a real 19.625-second FFmpeg render.
 - Verified desktop/mobile Studio flows and a live arbitrary-topic planner request.
 - Independently reviewed and fixed caption bounds, same-job cache cost accounting, failure checkpoints and run isolation.
 - Kept ElevenLabs live speech and subjective quality evaluation explicitly pending because no key was available.

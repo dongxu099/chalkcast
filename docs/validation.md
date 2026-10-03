@@ -5,7 +5,7 @@ Checked on 2026-10-03. This document separates a working local pipeline from liv
 | Area | Result | Evidence |
 |---|---|---|
 | Lint | Passed | `ruff check .` |
-| Offline tests | 27 passed | `pytest -q` |
+| Offline tests | 28 passed | `pytest -q` |
 | Skill metadata | Passed | skill-creator `quick_validate.py` |
 | Video encoding | Real FFmpeg render passed | 1280×720 H.264, 24 fps, AAC; 19.625-second quickstart |
 | Cache reuse | Passed | Second quickstart run: 2 scene cache hits, $0 narration charge |
@@ -24,3 +24,5 @@ The default test environment reports one upstream Starlette/httpx deprecation wa
 Prices were checked against live official pages. Search-cache pricing differed from the live ElevenLabs page and was corrected before release. See [cost assumptions](costs.md). The planner's backoff/jitter error was corrected before adding the reviewed public sample; see [evaluation](evaluation.md).
 
 To complete the speech evaluation, inject a key and run the short `voice_probe` benchmark, then the English and Chinese examples. Record listening observations and actual response headers. Do not turn mock results into claims of measured provider quality, latency or billing.
+
+The first public GitHub CI run passed lint, all then-current offline tests and the Linux FFmpeg render. The final validation update adds an explicit mocked OpenAI Speech contract test; it does not constitute a live competitor benchmark.
