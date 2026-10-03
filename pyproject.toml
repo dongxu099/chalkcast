@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chalkcast"
+version = "0.1.0"
+description = "Narrated explainer videos with inspectable ElevenLabs timing and cost"
+requires-python = ">=3.11"
+dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "httpx>=0.27,<1", "pydantic>=2.9,<3", "pillow>=11,<13", "imageio-ffmpeg>=0.6,<1", "mutagen>=1.47,<2", "typer>=0.15,<1"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[project.scripts]
+chalkcast = "chalkcast.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chalkcast"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
