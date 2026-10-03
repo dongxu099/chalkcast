@@ -1,0 +1,23 @@
+{
+  "title": "Narration stress test",
+  "topic": "Pronunciation and chunk continuity",
+  "audience": "evaluators",
+  "language": "en",
+  "scenes": [
+    {
+      "title": "Acronyms, numbers and spoken math",
+      "narration": "The API returns JSON. A CPU processes one thousand requests. The latency is seventy five milliseconds. E to the x means the exponential function. Bayes theorem updates a prior probability using evidence.",
+      "visual": {
+        "kind": "flow",
+        "labels": [
+          "Acronyms",
+          "Numbers",
+          "Math"
+        ],
+        "values": [],
+        "formula": "",
+        "caption": "Listen for pronunciation and natural pauses."
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "title": "A positive test is not the whole story",
+  "topic": "Bayesian reasoning",
+  "audience": "curious beginners",
+  "language": "en",
+  "scenes": [
+    {
+      "title": "Count both kinds of positive result",
+      "narration": "A positive test can come from someone with the condition, or from someone without it. To interpret the test, we must count both paths.",
+      "visual": {
+        "kind": "flow",
+        "labels": [
+          "Condition",
+          "Test result",
+          "Evidence"
+        ],
+        "values": [],
+        "formula": "",
+        "caption": "A test result is evidence, not certainty."
+      }
+    },
+    {
+      "title": "Compare the true and false positives",
+      "narration": "In an illustrative group, nine true positives and about fifty false positives produce only a fifteen percent chance of the condition after a positive result.",
+      "visual": {
+        "kind": "bars",
+        "labels": [
+          "True positives",
+          "False positives"
+        ],
+        "values": [
+          9,
+          49.5
+        ],
+        "formula": "",
+        "caption": "Expected counts: 1% prevalence, 90% sensitivity, 95% specificity."
+      }
+    }
+  ]
+}

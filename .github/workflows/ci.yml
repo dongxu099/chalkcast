@@ -1,0 +1,19 @@
+name: CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --extra dev --python 3.12 --locked
+      - run: uv run ruff check .
+      - run: uv run pytest -q
+      - run: uv run chalkcast render examples/quickstart.json --output output/ci
+      - uses: actions/upload-artifact@v4
+        with:
+          name: silent-demo
+          path: output/ci/video.mp4

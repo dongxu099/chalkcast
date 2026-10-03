@@ -1,0 +1,86 @@
+{
+  "title": "Backoff lowers load. Jitter breaks synchronization.",
+  "topic": "How exponential backoff helps manage repeated retry attempts in networks",
+  "audience": "curious beginners",
+  "language": "en",
+  "scenes": [
+    {
+      "title": "What is a Retry Storm?",
+      "narration": "When many devices or programs try to reconnect to a service right after it fails, they can all send requests at the same time. This sudden surge is called a retry storm. It overwhelms the server and makes it even harder for anyone to connect.",
+      "visual": {
+        "kind": "bars",
+        "labels": [
+          "Device A",
+          "Device B",
+          "Device C",
+          "Device D",
+          "Device E"
+        ],
+        "values": [
+          5.0,
+          5.0,
+          5.0,
+          5.0,
+          5.0
+        ],
+        "formula": "",
+        "caption": "All devices retry simultaneously, causing a high surge of requests."
+      }
+    },
+    {
+      "title": "How Regular Retries Cause Problems",
+      "narration": "If every device waits a fixed short time before retrying, they keep hitting the server together. This repeated, synchronized traffic locks up resources and can lead to longer delays or service crashes.",
+      "visual": {
+        "kind": "flow",
+        "labels": [
+          "Failure",
+          "Wait Fixed Time",
+          "Retry",
+          "Server Overload",
+          "Failure Again"
+        ],
+        "values": [],
+        "formula": "",
+        "caption": "Fixed retry intervals lead to repeated, synchronized retries that worsen server overload."
+      }
+    },
+    {
+      "title": "Introducing Exponential Backoff",
+      "narration": "Exponential backoff increases the delay between attempts, often doubling it up to a limit. This reduces each client’s retry frequency and gives the service time to recover. Identical clients can still retry together, so backoff alone does not break synchronization.",
+      "visual": {
+        "kind": "bars",
+        "labels": [
+          "Retry 1",
+          "Retry 2",
+          "Retry 3",
+          "Retry 4",
+          "Retry 5"
+        ],
+        "values": [
+          1.0,
+          2.0,
+          4.0,
+          8.0,
+          16.0
+        ],
+        "formula": "Wait time for retry n = 2 to the power of (n - 1) seconds",
+        "caption": "Illustrative delay ceilings: 1, 2, 4, 8 and 16 seconds."
+      }
+    },
+    {
+      "title": "Add jitter to spread the requests",
+      "narration": "With full jitter, each client samples a random delay between zero and its current backoff ceiling. Independent random delays spread requests across time. Combined with a retry limit and a total timeout, this reduces repeated pressure without promising that every request will succeed.",
+      "visual": {
+        "kind": "flow",
+        "labels": [
+          "Backoff ceiling",
+          "Random delay",
+          "Bounded retries"
+        ],
+        "values": [],
+        "formula": "",
+        "caption": "Jitter breaks synchronized retries. Backoff lowers their frequency."
+      }
+    }
+  ]
+}

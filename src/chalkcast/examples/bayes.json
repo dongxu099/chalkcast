@@ -1,0 +1,68 @@
+{
+  "title": "Why a good test can still surprise you",
+  "topic": "Bayes theorem with a low base rate",
+  "audience": "curious beginners",
+  "language": "en",
+  "scenes": [
+    {
+      "title": "Start with the base rate",
+      "narration": "Imagine one thousand people. The condition affects one percent of them, so we expect ten people with it and nine hundred ninety without it. These are illustrative assumptions, not clinical data.",
+      "visual": {
+        "kind": "bars",
+        "labels": [
+          "With condition",
+          "Without condition"
+        ],
+        "values": [
+          10,
+          990
+        ],
+        "formula": "",
+        "caption": "Illustrative population: 1,000 people. Prevalence: 1%."
+      }
+    },
+    {
+      "title": "A test has two ways to say yes",
+      "narration": "Suppose the test detects ninety percent of cases. That gives nine true positives. Its specificity is ninety five percent, so five percent of the other group also test positive.",
+      "visual": {
+        "kind": "flow",
+        "labels": [
+          "Prior",
+          "Test",
+          "Positive result"
+        ],
+        "values": [],
+        "formula": "",
+        "caption": "Sensitivity = 90%. Specificity = 95%."
+      }
+    },
+    {
+      "title": "False positives can outnumber real cases",
+      "narration": "Five percent of nine hundred ninety is forty nine point five. Expected counts need not be whole numbers. Compare nine true positives with forty nine point five false positives.",
+      "visual": {
+        "kind": "bars",
+        "labels": [
+          "True positives",
+          "False positives"
+        ],
+        "values": [
+          9,
+          49.5
+        ],
+        "formula": "",
+        "caption": "Expected positive results, not observed people."
+      }
+    },
+    {
+      "title": "Update the probability",
+      "narration": "Among all positive results, the fraction with the condition is nine divided by fifty eight point five. That is about fifteen point four percent. Bayes theorem combines the base rate with the test evidence.",
+      "visual": {
+        "kind": "equation",
+        "labels": [],
+        "values": [],
+        "formula": "P(condition | positive) = 9 / 58.5 = 15.4%",
+        "caption": "Changing the base rate changes the answer."
+      }
+    }
+  ]
+}
