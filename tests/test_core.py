@@ -2,6 +2,7 @@ import base64
 import json
 import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 
 import httpx
 import imageio_ffmpeg
@@ -63,6 +64,67 @@ def test_normalized_alignment_and_invalid_fallback():
     assert source == "provider_character_alignment"
     alignment["character_end_times_seconds"] = []
     assert captions(text, 3, alignment)[1] == "estimated_proportional_timing"
+
+
+def test_chinese_pinyin_alignment_uses_original_characters():
+    fixture = json.loads(Path("tests/fixtures/chinese_alignment.json").read_text())
+    text = fixture["text"]
+    cues, source = captions(text, 5, fixture["alignment"], fixture["normalized_alignment"])
+    assert "".join(c["text"] for c in cues) == text
+    assert source == "provider_character_alignment"
+    cues, source = captions(text, 5, None, fixture["normalized_alignment"])
+    assert "".join(c["text"] for c in cues) == text
+    assert source == "estimated_proportional_timing"
+
+
+def test_original_alignment_is_used_when_normalized_data_is_invalid():
+    original = {"characters": list("hello"), "character_start_times_seconds": [0, .1, .2, .3, .4],
+                "character_end_times_seconds": [.1, .2, .3, .4, .5]}
+    assert captions("hello", 1, original, {"characters": ["bad"]})[1] == "provider_character_alignment"
+
+
+def test_old_pinyin_cache_repairs_captions_without_request(tmp_path):
+    text = "我们"
+    options = RenderOptions(provider="elevenlabs")
+    key = cache_key(text, options)
+    (tmp_path / f"{key}.mp3").write_bytes(b"cached audio is not regenerated")
+    (tmp_path / f"{key}.json").write_text(json.dumps({"state": "ready", "filename": f"{key}.mp3",
+        "seconds": 1, "characters": 2, "captions": [{"start": 0, "end": 1, "text": "Wo Men"}],
+        "timing_source": "provider_character_alignment", "provider_character_cost": 1}))
+    class RejectNetwork:
+        def post(self, *args, **kwargs):
+            pytest.fail("Caption repair attempted a paid request")
+    result = synthesize(text, options, tmp_path, client=RejectNetwork())
+    assert result["cache_hit"]
+    assert result["captions"][0]["text"] == text
+    assert result["timing_source"] == "estimated_proportional_timing"
+
+
+def test_chinese_alignment_round_trip_preserves_raw_data_and_repairs_cache(tmp_path, monkeypatch):
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-secret")
+    monkeypatch.setattr("chalkcast.narration.MP3", lambda path: SimpleNamespace(info=SimpleNamespace(length=5)))
+    fixture = json.loads(Path("tests/fixtures/chinese_alignment.json").read_text())
+    calls = []
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(200, json={"audio_base64": base64.b64encode(b"fixture").decode(),
+            "alignment": fixture["alignment"], "normalized_alignment": fixture["normalized_alignment"]})
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    options = RenderOptions(provider="elevenlabs")
+    text = fixture["text"]
+    first = synthesize(text, options, tmp_path, client=client)
+    assert first["timing_source"] == "provider_character_alignment"
+    assert "".join(c["text"] for c in first["captions"]) == text
+    record_path = tmp_path / f"{cache_key(text, options)}.json"
+    record = json.loads(record_path.read_text())
+    assert record["alignment"] == fixture["alignment"]
+    assert record["normalized_alignment"] == fixture["normalized_alignment"]
+    record["captions"] = [{"start": 0, "end": 5, "text": "Wo Men"}]
+    record_path.write_text(json.dumps(record))
+    second = synthesize(text, options, tmp_path, client=client)
+    assert second["cache_hit"] and len(calls) == 1
+    assert "".join(c["text"] for c in second["captions"]) == text
+    assert second["timing_source"] == "provider_character_alignment"
 
 
 def test_alignment_cannot_produce_reverse_cues():

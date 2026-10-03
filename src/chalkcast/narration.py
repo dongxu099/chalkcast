@@ -11,7 +11,7 @@ from pathlib import Path
 import httpx
 from mutagen.mp3 import MP3
 
-from .captions import captions
+from .captions import captions, preserves_han_text
 
 
 def read_cache_record(path):
@@ -56,10 +56,22 @@ def synthesize(text, options, cache_dir: Path, previous="", following="", client
                              "before explicitly removing it to retry.")
         path = cache_dir / cached["filename"]
         if path.is_file() and path.stat().st_size > 0:
+            # Caption-only repairs reuse audio, including older records that lack alignment.
+            if "alignment" in cached or "normalized_alignment" in cached:
+                cues, source = captions(text, cached["seconds"], cached.get("alignment"),
+                                       cached.get("normalized_alignment"))
+            elif not preserves_han_text(text, "".join(c["text"] for c in cached.get("captions", []))):
+                cues, source = captions(text, cached["seconds"], None)
+            else:
+                cues, source = cached["captions"], cached["timing_source"]
+            if cues != cached["captions"] or source != cached["timing_source"]:
+                cached.update(captions=cues, timing_source=source)
+                write_cache_record(metadata_path, cached)
             return {**cached, "path": str(path), "cache_hit": True, "wall_seconds": 0,
                     "provider_character_cost": None}
     began = time.perf_counter()
-    alignment, observed, raw_cost, request_id, trace_id = None, None, None, None, None
+    alignment, normalized_alignment = None, None
+    observed, raw_cost, request_id, trace_id = None, None, None, None
     def checkpoint(reason, state="rejected"):
         write_cache_record(metadata_path, {"state": state, "reason": reason,
                                           "filename": f"{key}.mp3", "request_id": request_id,
@@ -120,7 +132,8 @@ def synthesize(text, options, cache_dir: Path, previous="", following="", client
             try:
                 payload = response.json()
                 audio_bytes = base64.b64decode(payload["audio_base64"], validate=True)
-                alignment = payload.get("normalized_alignment") or payload.get("alignment")
+                alignment = payload.get("alignment")
+                normalized_alignment = payload.get("normalized_alignment")
             except (ValueError, KeyError, TypeError) as exc:
                 raise ValueError("Provider returned invalid audio JSON; the request may have been billed.") from exc
             trace_id = response.headers.get("x-trace-id")
@@ -137,10 +150,11 @@ def synthesize(text, options, cache_dir: Path, previous="", following="", client
             checkpoint("Scene duration exceeds the supported range; successful audio is preserved")
             raise ValueError("A scene audio track must be between 0 and 120 seconds. "
                              "The successful response is cached and may have been billed.")
-    cues, timing_source = captions(text, seconds, alignment)
+    cues, timing_source = captions(text, seconds, alignment, normalized_alignment)
     record = {"state": "ready", "filename": filename, "seconds": seconds, "characters": len(text),
               "provider_character_cost": observed, "provider_character_cost_raw": raw_cost,
               "request_id": request_id, "trace_id": trace_id, "captions": cues,
+              "alignment": alignment, "normalized_alignment": normalized_alignment,
               "timing_source": timing_source, "wall_seconds": round(time.perf_counter() - began, 3)}
     write_cache_record(metadata_path, record)
     return {**record, "path": str(path), "cache_hit": False}

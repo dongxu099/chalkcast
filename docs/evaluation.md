@@ -35,7 +35,7 @@ ElevenLabs returns character alignment with narration, allowing the animation an
 - Billing mode and some custom voice rates require account-level verification.
 - The timestamp endpoint buffers a complete JSON/base64 response. A real-time voice agent needs a streaming design and different measurements.
 
-Offline tests exercise missing alignment and cache recovery. Pronunciation, prosody and voice quality remain unmeasured until live narration. These are evaluation questions, not measured vendor defects. OpenAI and Google price projections do not constitute live quality benchmarks.
+Offline tests exercise missing alignment and cache recovery. [The first live experiment](live-evaluation.md) measured timing, generated English/Chinese videos and discovered that Flash's normalized Chinese alignment can contain pinyin. ChalkCast now selects original Han-character alignment, or retains Chinese text with an explicitly estimated timing fallback. Both alignment forms are cached for future caption repairs. Pronunciation, prosody and subjective voice quality still require listening; OpenAI and Google price projections do not constitute live quality benchmarks.
 
 ## Factual review is a separate acceptance step
 

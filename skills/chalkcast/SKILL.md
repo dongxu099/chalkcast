@@ -15,4 +15,6 @@ Use `chalkcast estimate <storyboard>` before a paid render. A narration request 
 
 Verify that video duration covers narration, captions use provider alignment when available, and report fields separate local USD estimates from raw character-cost. Reuse the same output parent to reuse audio cache. Context changes also invalidate adjacent scene caches. On uncertain network failure, stop and inspect account usage; there is no automatic retry.
 
+For Chinese, normalized alignment can contain pinyin. Preserve Han characters using the original alignment; if a reliable character mapping is unavailable, retain the source text and label timing as estimated. Both alignment forms are saved with new audio cache entries, allowing caption repairs without resynthesis.
+
 See [cost methodology](../../docs/costs.md) for billing units and [evaluation protocol](../../docs/evaluation.md) for listening and failure tests. Output stays local unless the user authorizes publication.

@@ -43,6 +43,8 @@ Choose a fresh output folder for each run, for example `output/bayes-v2`. The ap
 
 On macOS, `uv run chalkcast studio --keychain` can read existing Keychain items named `elevenlabs_api_key`, `openai_api_key` and `openrouter_api_key`. It injects them only into this process. OpenRouter sets the compatible planner endpoint automatically unless you have explicitly configured another endpoint. Create the items in Keychain Access yourself; never paste a key into a chat or a command history.
 
+To store or update the ElevenLabs key from macOS Terminal, run `security add-generic-password -U -a "$USER" -s elevenlabs_api_key -w`. Keep `-w` last: Terminal prompts for the key without placing it in command history. Restart the Studio afterward. The key needs Text to Speech permission. Account and model-list read permissions are optional; their HTTP 401 `missing_permissions` responses do not mean the key cannot synthesize speech.
+
 ## Explain an arbitrary topic
 
 Use an OpenAI-compatible planner with `PLANNER_API_KEY`, optional `PLANNER_BASE_URL` and `PLANNER_MODEL`. The default endpoint is OpenAI; an OpenRouter endpoint works too. `OPENAI_API_KEY` is the fallback planner credential.
@@ -73,6 +75,8 @@ At the 2026-10-03 API list-rate snapshot, 5,000 characters project to $0.20 for 
 Reports separate input characters, provider `character-cost`, locally estimated USD, full-response latency, audio duration, caption timing source and cache hits. Missing provider fields stay null. Planner usage is a separate report. The budget option is an estimate gate; set provider account spending limits for an enforceable ceiling.
 
 Use [the evaluation protocol](docs/evaluation.md) to investigate pronunciation, Chinese, chunk transitions, latency, failure behavior and cost. Listen to the output before drawing a quality conclusion.
+
+[Live results from 2026-10-03](docs/live-evaluation.md): three independent 203-character samples per model produced full-response medians of 1.080 seconds for Flash and 3.109 seconds for Multilingual v2. English and Chinese narrated videos passed rendering and subtitle checks. The Chinese experiment exposed phonetic normalized alignment; subtitles now select the original Han-character alignment. These small samples establish integration behavior, not a general voice-quality ranking.
 
 ## Implementation and verification
 

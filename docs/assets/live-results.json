@@ -1,0 +1,164 @@
+{
+  "measured_on": "2026-10-03",
+  "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+  "runs": [
+    {
+      "run": "probe_flash_1",
+      "model_id": "eleven_flash_v2_5",
+      "new_characters": 203,
+      "estimated_usd": 0.00812,
+      "provider_character_cost": 102.0,
+      "audio_seconds": 15.177,
+      "narration_wall_seconds": 1.311,
+      "total_wall_seconds": 1.311,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "probe_multilingual_1",
+      "model_id": "eleven_multilingual_v2",
+      "new_characters": 203,
+      "estimated_usd": 0.01624,
+      "provider_character_cost": 203.0,
+      "audio_seconds": 15.229,
+      "narration_wall_seconds": 3.148,
+      "total_wall_seconds": 3.148,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "probe_flash_2",
+      "model_id": "eleven_flash_v2_5",
+      "new_characters": 203,
+      "estimated_usd": 0.00812,
+      "provider_character_cost": 102.0,
+      "audio_seconds": 15.882,
+      "narration_wall_seconds": 0.928,
+      "total_wall_seconds": 0.929,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "probe_multilingual_2",
+      "model_id": "eleven_multilingual_v2",
+      "new_characters": 203,
+      "estimated_usd": 0.01624,
+      "provider_character_cost": 203.0,
+      "audio_seconds": 14.759,
+      "narration_wall_seconds": 2.158,
+      "total_wall_seconds": 2.158,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "probe_flash_3",
+      "model_id": "eleven_flash_v2_5",
+      "new_characters": 203,
+      "estimated_usd": 0.00812,
+      "provider_character_cost": 102.0,
+      "audio_seconds": 16.431,
+      "narration_wall_seconds": 1.08,
+      "total_wall_seconds": 1.08,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "probe_multilingual_3",
+      "model_id": "eleven_multilingual_v2",
+      "new_characters": 203,
+      "estimated_usd": 0.01624,
+      "provider_character_cost": 203.0,
+      "audio_seconds": 14.89,
+      "narration_wall_seconds": 3.109,
+      "total_wall_seconds": 3.109,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "english_video",
+      "model_id": "eleven_flash_v2_5",
+      "new_characters": 291,
+      "estimated_usd": 0.01164,
+      "provider_character_cost": 145.0,
+      "audio_seconds": 17.136,
+      "narration_wall_seconds": 1.346,
+      "total_wall_seconds": 7.107,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "chinese_video",
+      "model_id": "eleven_flash_v2_5",
+      "new_characters": 99,
+      "estimated_usd": 0.00396,
+      "provider_character_cost": 50.0,
+      "audio_seconds": 23.406,
+      "narration_wall_seconds": 1.444,
+      "total_wall_seconds": 7.899,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "english_cached",
+      "model_id": "eleven_flash_v2_5",
+      "new_characters": 0,
+      "estimated_usd": 0.0,
+      "provider_character_cost": null,
+      "audio_seconds": 17.136,
+      "narration_wall_seconds": 0.002,
+      "total_wall_seconds": 0.003,
+      "cache_hits": 2,
+      "timing_sources": [
+        "provider_character_alignment"
+      ]
+    },
+    {
+      "run": "chinese_video_fixed",
+      "model_id": "eleven_flash_v2_5",
+      "new_characters": 99,
+      "audio_seconds": 23.798,
+      "video_seconds": 23.875,
+      "narration_wall_seconds": 1.484,
+      "total_wall_seconds": 10.119,
+      "estimated_usd": 0.00396,
+      "provider_character_cost": 50.0,
+      "cache_hits": 0,
+      "timing_sources": [
+        "provider_character_alignment",
+        "provider_character_alignment"
+      ]
+    }
+  ],
+  "alignment_probe": {
+    "text": "我们把讲解拆成场景。",
+    "input_characters": 10,
+    "estimated_usd": 0.0004,
+    "provider_character_cost_raw": "5"
+  },
+  "total_new_characters": 1717,
+  "total_list_price_projection_usd": 0.09304,
+  "sum_raw_provider_character_cost": 1165.0,
+  "cash_invoice_usd": null,
+  "account_credit_delta": null,
+  "account_read_result": "HTTP 401 missing_permissions",
+  "subjective_quality": "not scored",
+  "competitor_live_audio": "not generated",
+  "flash_median_seconds": 1.08,
+  "multilingual_median_seconds": 3.109
+}

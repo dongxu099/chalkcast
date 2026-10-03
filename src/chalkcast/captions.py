@@ -13,8 +13,20 @@ def caption_spans(text, width=62):
     return spans
 
 
-def captions(text: str, seconds: float, alignment: dict | None):
-    if isinstance(alignment, dict):
+def preserves_han_text(text, spoken):
+    """A phonetic normalization must not replace Han characters in readable subtitles."""
+    def han(value):
+        return "".join(c for c in value if "\u3400" <= c <= "\u9fff"
+                       or "\uf900" <= c <= "\ufaff" or "\U00020000" <= c <= "\U0002fa1f")
+    original = han(text)
+    return not original or original == han(spoken)
+
+
+def captions(text: str, seconds: float, alignment: dict | None, normalized_alignment: dict | None = None):
+    for candidate in (normalized_alignment, alignment):
+        if not isinstance(candidate, dict):
+            continue
+        alignment = candidate
         chars = alignment.get("characters", [])
         starts = alignment.get("character_start_times_seconds", [])
         ends = alignment.get("character_end_times_seconds", [])
@@ -22,8 +34,10 @@ def captions(text: str, seconds: float, alignment: dict | None):
                 and len(chars) == len(starts) == len(ends) and chars
                 and all(isinstance(c, str) for c in chars)
                 and all(isinstance(t, (int, float)) for t in starts + ends)):
-            # Normalization can change the spoken string. Use the returned characters.
+            # English number expansions are useful, but Chinese normalization can be pinyin.
             spoken = "".join(chars)
+            if not preserves_han_text(text, spoken):
+                continue
             chunks = caption_spans(spoken)
             result = []
             for a, b in chunks:
