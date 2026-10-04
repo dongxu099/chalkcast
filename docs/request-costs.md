@@ -19,6 +19,6 @@ The dollar total adds OpenRouter's reported usage value to an estimate of newly 
 
 The browser verified result downloads, receipt reopening after a server restart, and a 390-pixel mobile viewport without horizontal overflow. Offline tests cover distinct drafts, concurrent fee allocation, restart reuse, missing/invalid cost fields, partial failures and paid invalid storyboards. Runtime artifacts, credentials and provider identifiers stay outside git. [Sanitized measurements](assets/request-costs.json).
 
-![Desktop request cost receipt](assets/request-costs-desktop.png)
+![Desktop request cost receipt](assets/request-costs-desktop.jpg)
 
-![Mobile request cost receipt](assets/request-costs-mobile.png)
+![Mobile request cost receipt](assets/request-costs-mobile.jpg)
