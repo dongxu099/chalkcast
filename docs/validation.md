@@ -1,14 +1,16 @@
 # What has been verified
 
-Checked on 2026-10-03. This document separates a working local pipeline from live provider evaluation.
+Checked through 2026-10-04. This document separates a working local pipeline from live provider evaluation.
 
 | Area | Result | Evidence |
 |---|---|---|
 | Lint | Passed | `ruff check .` |
-| Offline tests | 32 passed | `pytest -q`, including a real Chinese-alignment fixture, alignment cache round trip and no-request cache repair |
+| Offline tests | 49 passed | `pytest -q`, including a real Chinese-alignment fixture, alignment cache round trip and no-request cache repair |
 | Skill metadata | Passed | skill-creator `quick_validate.py` |
 | Video encoding | Real FFmpeg render passed | 1280×720 H.264, 24 fps, AAC; 19.625-second quickstart |
 | Cache reuse | Passed | Second quickstart run: 2 scene cache hits, $0 narration charge |
+| Request cost receipts | Live Studio + CLI verified; 17 added offline cases | Planner 954 tokens/$0.0012156, narration estimate $0.029920, total $0.0311356; cached repeat $0; partial/unknown costs and draft isolation covered |
+| Receipt reopening | Browser verified after server restart | Saved result link reloads video, costs and measured elapsed time; 390px mobile has no horizontal overflow |
 | Arbitrary-topic planner | Live OpenRouter request passed | Exponential-backoff draft produced valid scene JSON, then human-reviewed |
 | Studio flow | Browser verified | Example → estimate → render → playable MP4 and download links |
 | Studio input recovery | Browser verified | Invalid JSON preserves existing story/output and disables render |
@@ -29,3 +31,5 @@ Prices were checked against live official pages. Search-cache pricing differed f
 See [live measurements](live-evaluation.md) for sample latencies, raw character-cost telemetry and the $0.09304 total list-price projection. This is not a verified invoice. Audio quality and pronunciation scores remain pending human listening; competitor speech remains untested.
 
 The initial public GitHub CI run passed lint, all then-current offline tests and the Linux FFmpeg render. An explicit mocked OpenAI Speech contract test was subsequently added; it does not constitute a live competitor benchmark. Real provider requests remain local and are excluded from CI.
+
+See [the request cost demonstration](request-costs.md) for current screenshots and sanitized measurements.

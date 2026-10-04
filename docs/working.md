@@ -21,13 +21,6 @@
 - Added saved result links that reopen receipts/video after refresh or server restart; restored elapsed time from the report.
 - Passed Ruff and 49 offline cases. Live planner, narrated MP4, four-hit cached repeat, CLI sidecar reuse, desktop/mobile receipt layout and reopening were verified. [Measurements and screenshots](request-costs.md).
 
-### 2026-10-04
-- Added a requester-facing receipt with planner input/output/total tokens, reported planner USD, estimated ElevenLabs USD and total API usage value; saved the same breakdown to `report.json`.
-- Replaced shared latest-usage attribution with per-draft IDs and a durable, atomic fee allocation; reused drafts and audio caches add zero incremental charges. The CLI automatically attaches planning sidecars.
-- Preserved usage before storyboard validation and checkpointed scene charges before local processing; partial failures retain known costs and flag unconfirmed charges.
-- Added saved result links that reopen receipts/video after refresh or server restart; restored elapsed time from the report.
-- Passed Ruff and 49 offline cases. Live planner, narrated MP4, four-hit cached repeat, CLI sidecar reuse, desktop/mobile receipt layout and reopening were verified. [Measurements and screenshots](request-costs.md).
-
 ## Lessons Learned
 - Price comparisons must state model, billing unit, plan and utilization.
 - Timing alignment measures synchronization; it does not verify pronunciation.

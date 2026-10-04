@@ -76,8 +76,6 @@ The result page shows **planner tokens, ElevenLabs estimated cost and the total 
 
 [See a real request receipt](docs/request-costs.md): 954 planner tokens, $0.029920 estimated ElevenLabs usage and $0.0311356 total estimated API usage; its fully cached repeat costs $0. Saved result links reopen the receipt and video after refresh or a local server restart.
 
-[See a real request receipt](docs/request-costs.md): 954 planner tokens, $0.029920 estimated ElevenLabs usage and $0.0311356 total estimated API usage; its fully cached repeat costs $0. Saved result links reopen the receipt and video after refresh or a local server restart.
-
 Reports also preserve provider `character-cost`, full-response latency, audio duration, caption timing source and cache hits. USD usage value may differ from account cash charges. The budget option limits estimated new narration, not planning or total account spending; set provider account spending limits for an enforceable ceiling.
 
 Use [the evaluation protocol](docs/evaluation.md) to investigate pronunciation, Chinese, chunk transitions, latency, failure behavior and cost. Listen to the output before drawing a quality conclusion.

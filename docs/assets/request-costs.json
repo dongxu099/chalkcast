@@ -1,0 +1,33 @@
+{
+  "observed_date": "2026-10-04",
+  "model": "eleven_flash_v2_5",
+  "scope": "API usage value; narration is a list-rate estimate, not an account invoice",
+  "first_request": {
+    "planner_input_tokens": 259,
+    "planner_output_tokens": 695,
+    "planner_total_tokens": 954,
+    "planner_reported_usd": 0.0012156,
+    "new_narration_characters": 748,
+    "elevenlabs_estimated_usd": 0.02992,
+    "total_estimated_usd": 0.0311356,
+    "elevenlabs_invoice_usd": null,
+    "audio_seconds": 51.905,
+    "video_seconds": 52.0,
+    "generation_wall_seconds": 32.569,
+    "cache_hits": 0
+  },
+  "cached_repeat": {
+    "planner_total_tokens": 0,
+    "new_narration_characters": 0,
+    "elevenlabs_estimated_usd": 0.0,
+    "total_estimated_usd": 0,
+    "cache_hits": 4,
+    "generation_wall_seconds": 29.579
+  },
+  "cli_sidecar_reuse": {
+    "planner_state": "reused",
+    "original_tokens": 954,
+    "new_planner_tokens": 0,
+    "total_api_usd": 0
+  }
+}
