@@ -17,4 +17,6 @@ Verify that video duration covers narration, captions use provider alignment whe
 
 For Chinese, normalized alignment can contain pinyin. Preserve Han characters using the original alignment; if a reliable character mapping is unavailable, retain the source text and label timing as estimated. Both alignment forms are saved with new audio cache entries, allowing caption repairs without resynthesis.
 
+Give the requester `report.json` with its `request_cost` receipt: input/output/total planner tokens, reported planner USD, estimated new ElevenLabs USD and total estimated API usage value. The CLI automatically attaches the planning sidecar. A draft fee is allocated once; cached speech and reused drafts add zero incremental cost. Never join a job to shared latest-call telemetry. Unknown charges stay null with a known subtotal. Inspect partial receipts after failures; preserve paid usage before validating generated content. API usage value excludes account subscription cash charges and external authoring/local compute. Verify CLI parameters against help and provider fields/units against their official schema before implementation.
+
 See [cost methodology](../../docs/costs.md) for billing units and [evaluation protocol](../../docs/evaluation.md) for listening and failure tests. Output stays local unless the user authorizes publication.

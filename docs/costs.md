@@ -35,7 +35,34 @@ The monthly formula assumes overage is enabled. Creator lists a regular $22/mont
 
 `max_cost_usd` is an estimated preflight limit. It cannot override provider-side billing. Set an account spending limit as well. A custom rate field lets a user model a legacy account or special voice; the app cannot verify that entered rate.
 
-Planning is a separate API cost. The CLI saves `<storyboard>.usage.json`; the Studio exposes the latest usage at `/api/planner-usage`. Token counts come from the response. USD remains unknown unless the planner returns a cost field. Rendering uses local compute, storage and the bundled FFmpeg; those operating costs are outside the narration projection. A coding agent can write the storyboard directly with the bundled skill, avoiding a second planner API.
+## A cost receipt for every video request
+
+The Studio result shows **planner tokens**, **ElevenLabs estimated USD**, and **total API cost**. The breakdown includes input/output tokens, planning USD and narration USD. The same data is saved under `request_cost` in downloadable `report.json`.
+
+```text
+total API usage value = planner reported USD + newly generated narration estimated USD
+```
+
+The total is estimated whenever new narration uses a paid API. It is not a bank-card debit. Monthly plan fees, included balance, discounts, taxes, OpenRouter credit-purchase fees, external authoring and local operating costs are excluded. Local animation/FFmpeg rendering incurs $0 in external API fees and has no LLM token count. ElevenLabs TTS uses characters, not planner tokens.
+
+| Receipt field | Meaning |
+|---|---|
+| `planner.prompt_tokens`, `completion_tokens`, `total_tokens` | Provider-measured tokens allocated to this request |
+| `planner.provider_reported_usd` | Reported OpenRouter API usage value; null if unavailable |
+| `elevenlabs_estimated_usd` | New, uncached speech characters × selected USD rate |
+| `elevenlabs_provider_reported_usd` | Null for new paid speech: TTS returns no dollar invoice; zero when there is no new speech charge |
+| `total_estimated_usd` | Planning plus narration, or null if a required charge is unknown |
+| `known_subtotal_usd` | Known portion only, shown separately when the total is incomplete |
+| `total_provider_reported_usd` | Available only when every component is reported or zero; usually null for new paid speech |
+
+OpenRouter returns token counts and `usage.cost`; its account credit usage is denominated in USD. Other compatible endpoints may use different cost units, so their dollar amount remains null instead of guessing. No planner list-price lookup or characters-to-tokens conversion is used. Sources: [usage accounting](https://openrouter.ai/docs/guides/guides/usage-accounting), [USD credit-usage schema](https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key). Checked on 2026-10-04.
+
+The Studio's `POST /api/plans` returns `{planning_id, storyboard, usage}`. Submit that ID with `POST /api/jobs` to attach the corresponding server-owned receipt. `/api/plan` remains a storyboard-only compatibility endpoint; `/api/planner-usage` remains latest-call telemetry and is never used to attribute a job's cost. Changing examples clears the draft association; reviewing/editing a draft preserves it. Each planner attempt has its own receipt, including rejected generated storyboards. Abandoned drafts are separate requests, outside a later draft's total.
+
+The CLI saves `<storyboard>.usage.json` during `chalkcast plan` and automatically attaches it during `chalkcast render`. Both entry points allocate a draft's fee and tokens to its **first render only**. A durable, atomically written ownership record prevents duplicate allocation across later renders, simultaneous readers and server restarts. Later receipts retain the original usage for inspection, while their incremental planner tokens and cost are zero. Speech cache hits likewise add $0. A manual/example storyboard has no attached in-app planner charge; external authoring costs are outside this receipt.
+
+Receipts are checkpointed before local post-processing. If a later scene or encoder fails, the report retains completed charges. An unconfirmed narration attempt leaves the total unknown and shows a known subtotal; it cannot be treated as free. Planner usage is saved before storyboard validation, so invalid generated JSON does not hide a paid response. Network failures are not automatically retried.
+
 
 ## Update the snapshot before making a proposal
 

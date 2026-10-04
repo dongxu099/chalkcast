@@ -13,6 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from .billing import write_json
 from .costs import estimate
 from .pipeline import run
 from .planner import plan
@@ -80,12 +81,25 @@ def create_app(output: Path = Path("output")):
             raise HTTPException(404, "Example not found")
         return json.loads(path.read_text())
 
+    @app.post("/api/plans")
+    def make_plan_receipt(body: PlanRequest):
+        planning_id = uuid.uuid4().hex
+        path = output / ".planning" / f"{planning_id}.json"
+        try:
+            board = plan(body.topic, body.audience, body.language, path)
+        except ValueError as exc:
+            usage = json.loads(path.read_text()) if path.exists() else None
+            raise HTTPException(400, {"message": str(exc), "planning_id": planning_id,
+                                      "usage": usage}) from exc
+        usage = json.loads(path.read_text())
+        # Compatibility telemetry only. Jobs never read this shared latest file.
+        write_json(output / "planner_usage.json", usage)
+        return {"planning_id": planning_id, "storyboard": board, "usage": usage}
+
     @app.post("/api/plan")
     def make_plan(body: PlanRequest):
-        try:
-            return plan(body.topic, body.audience, body.language, output / "planner_usage.json")
-        except ValueError as exc:
-            raise HTTPException(400, str(exc)) from exc
+        """Legacy storyboard-only response; use /api/plans for attributable receipts."""
+        return make_plan_receipt(body)["storyboard"]
 
     @app.post("/api/estimate")
     def make_estimate(body: EstimateRequest):
@@ -99,14 +113,15 @@ def create_app(output: Path = Path("output")):
         path = output / "planner_usage.json"
         return json.loads(path.read_text()) if path.exists() else {"note": "No planner request in this session."}
 
-    def execute(job_id, body):
+    def execute(job_id, body, usage_path):
         def notify(stage):
             with lock:
                 jobs[job_id]["stage"] = stage
         try:
             with lock:
                 jobs[job_id]["status"] = "running"
-            result = run(body.storyboard, body, output / job_id, output / ".cache", notify)
+            result = run(body.storyboard, body, output / job_id, output / ".cache", notify,
+                         planner_usage_path=usage_path)
             links = {"storyboard": "storyboard.json", "report": "report.json", "subtitles": "subtitles.srt"}
             if body.render:
                 links.update(video="video.mp4", narration="narration.m4a")
@@ -120,9 +135,19 @@ def create_app(output: Path = Path("output")):
             # Never echo exception objects containing credentials, URLs or request bodies.
             with lock:
                 jobs[job_id].update(status="failed", error="Job failed. Inspect local artifacts and encoder.log.")
+        finally:
+            # Partial receipts survive failed synthesis/encoding and can be downloaded.
+            path = output / job_id / "report.json"
+            if path.is_file():
+                with lock:
+                    jobs[job_id]["report"] = json.loads(path.read_text())
+                    jobs[job_id]["artifacts"]["report"] = f"/artifacts/{job_id}/report.json"
 
     @app.post("/api/jobs", status_code=202)
     def submit(body: JobRequest):
+        usage_path = output / ".planning" / f"{body.planning_id}.json" if body.planning_id else None
+        if usage_path is not None and not usage_path.is_file():
+            raise HTTPException(404, "Planning receipt not found. Rebuild the draft or omit planning_id.")
         with lock:
             if any(j["status"] in {"queued", "running"} for j in jobs.values()):
                 raise HTTPException(409, "Another job is running. Wait for it to finish.")
@@ -132,7 +157,7 @@ def create_app(output: Path = Path("output")):
             jobs[job_id] = {"id": job_id, "status": "queued", "stage": "Queued", "error": None,
                             "report": None, "artifacts": {}}
             result = dict(jobs[job_id])
-        pool.submit(execute, job_id, body)
+        pool.submit(execute, job_id, body, usage_path)
         return result
 
     @app.get("/api/jobs/{job_id}")

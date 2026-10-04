@@ -72,7 +72,13 @@ The OpenAI adapter requires `OPENAI_API_KEY` and uses approximate caption timing
 
 At the 2026-10-03 API list-rate snapshot, 5,000 characters project to $0.20 for ElevenLabs Flash, $0.40 for Multilingual v2, $0.075 for OpenAI tts-1, $0.08 for Google Neural2 and $0.15 for Chirp 3 HD. Account plans, allowances and custom voices can change cash charges. [Sources, formulas and billing distinctions](docs/costs.md).
 
-Reports separate input characters, provider `character-cost`, locally estimated USD, full-response latency, audio duration, caption timing source and cache hits. Missing provider fields stay null. Planner usage is a separate report. The budget option is an estimate gate; set provider account spending limits for an enforceable ceiling.
+The result page shows **planner tokens, ElevenLabs estimated cost and the total API cost for this request**. Its downloadable `report.json` includes the same `request_cost` breakdown. Planner tokens/cost come from the response; speech USD uses new, uncached characters. Reused drafts and cached audio add $0. A planner sidecar is attached automatically by the CLI, and each draft's fee is allocated once. Missing costs stay unknown, with a known subtotal instead of a fabricated total. Failed runs retain partial receipts. [Receipt fields and accounting scope](docs/costs.md#a-cost-receipt-for-every-video-request).
+
+[See a real request receipt](docs/request-costs.md): 954 planner tokens, $0.029920 estimated ElevenLabs usage and $0.0311356 total estimated API usage; its fully cached repeat costs $0. Saved result links reopen the receipt and video after refresh or a local server restart.
+
+[See a real request receipt](docs/request-costs.md): 954 planner tokens, $0.029920 estimated ElevenLabs usage and $0.0311356 total estimated API usage; its fully cached repeat costs $0. Saved result links reopen the receipt and video after refresh or a local server restart.
+
+Reports also preserve provider `character-cost`, full-response latency, audio duration, caption timing source and cache hits. USD usage value may differ from account cash charges. The budget option limits estimated new narration, not planning or total account spending; set provider account spending limits for an enforceable ceiling.
 
 Use [the evaluation protocol](docs/evaluation.md) to investigate pronunciation, Chinese, chunk transitions, latency, failure behavior and cost. Listen to the output before drawing a quality conclusion.
 

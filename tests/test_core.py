@@ -165,7 +165,7 @@ def test_budget_stops_before_any_api_call(board, tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="No narration request"):
         run(board, RenderOptions(provider="elevenlabs", max_cost_usd=0), tmp_path / "job", tmp_path / "cache")
     with pytest.raises(ValueError, match="max_characters"):
-        run(board, RenderOptions(max_characters=1), tmp_path / "job", tmp_path / "cache")
+        run(board, RenderOptions(max_characters=1), tmp_path / "other-job", tmp_path / "cache")
 
 
 def test_output_folder_cannot_mix_runs(board, tmp_path):

@@ -1,9 +1,12 @@
 """An OpenAI-compatible planner with a review step and strict validation."""
 import json
 import os
+import uuid
+from urllib.parse import urlparse
 
 import httpx
 
+from .billing import amount, write_json
 from .schema import Storyboard
 
 SYSTEM = """Create an original, concise educational explainer storyboard as JSON.
@@ -26,6 +29,17 @@ def plan(topic: str, audience: str = "curious beginners", language: str = "en", 
     base = os.environ.get("PLANNER_BASE_URL", "https://api.openai.com/v1").rstrip("/")
     if not base.startswith("https://") and not base.startswith("http://127.0.0.1"):
         raise ValueError("Planner endpoint must use HTTPS or local loopback.")
+    report = {"usage_id": uuid.uuid4().hex, "model": os.environ.get("PLANNER_MODEL", "gpt-4.1-mini"),
+              "provider": urlparse(base).hostname, "status": "requesting", "prompt_tokens": None,
+              "completion_tokens": None, "total_tokens": None, "provider_reported_usd": None,
+              "note": "Token counts are provider measurements. USD is reported only when its unit is "
+                      "known (OpenRouter); otherwise it remains unknown, not zero."}
+
+    def save():
+        if usage_path is not None:
+            write_json(usage_path, report)
+
+    save()
     try:
         response = httpx.post(base + "/chat/completions", headers={"Authorization": f"Bearer {key}"},
                               json={"model": os.environ.get("PLANNER_MODEL", "gpt-4.1-mini"),
@@ -36,22 +50,32 @@ def plan(topic: str, audience: str = "curious beginners", language: str = "en", 
                                     "response_format": {"type": "json_object"}, "max_tokens": 2500},
                               timeout=90)
     except httpx.HTTPError as exc:
+        report["status"] = "unconfirmed"
+        save()
         raise ValueError("Planner network failure. Retry explicitly; a prior request may have been billed.") from exc
     if not response.is_success:
+        report["status"] = "http_error"
+        save()
         raise ValueError(f"Planner returned HTTP {response.status_code}. Check key, endpoint and model.")
     try:
-        content = response.json()["choices"][0]["message"]["content"]
+        payload = response.json()
+        usage = payload.get("usage", {})
+        if not isinstance(usage, dict):
+            usage = {}
+        for field in ("prompt_tokens", "completion_tokens", "total_tokens"):
+            report[field] = amount(usage.get(field))
+        if report["provider"] == "openrouter.ai":
+            report["provider_reported_usd"] = amount(usage.get("cost"))
+        report["model"] = payload.get("model", report["model"])
+        report["status"] = "received"
+        # A paid response can still fail storyboard validation. Preserve its usage first.
+        save()
+        content = payload["choices"][0]["message"]["content"]
         board = Storyboard.model_validate_json(content)
-        if usage_path is not None:
-            usage = response.json().get("usage", {})
-            report = {"model": os.environ.get("PLANNER_MODEL", "gpt-4.1-mini"),
-                      "prompt_tokens": usage.get("prompt_tokens"),
-                      "completion_tokens": usage.get("completion_tokens"),
-                      "total_tokens": usage.get("total_tokens"),
-                      "provider_reported_usd": usage.get("cost"),
-                      "note": "Planner is a separate API cost. USD is unknown unless the provider returns cost."}
-            usage_path.parent.mkdir(parents=True, exist_ok=True)
-            usage_path.write_text(json.dumps(report, indent=2))
+        report["status"] = "completed"
+        save()
         return board
-    except (ValueError, KeyError, IndexError) as exc:
+    except (ValueError, KeyError, IndexError, TypeError, AttributeError) as exc:
+        report["status"] = "invalid_storyboard"
+        save()
         raise ValueError("Planner returned an invalid storyboard. Load an example or retry.") from exc

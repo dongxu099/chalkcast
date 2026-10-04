@@ -77,3 +77,4 @@ class RenderOptions(BaseModel):
 
 class JobRequest(RenderOptions):
     storyboard: Storyboard
+    planning_id: str | None = Field(default=None, pattern=r"^[0-9a-f]{32}$")

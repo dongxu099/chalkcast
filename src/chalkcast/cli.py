@@ -61,12 +61,14 @@ def render(storyboard: Path, output: Path = Path("output/demo"), provider: str =
            model: str = "eleven_flash_v2_5", voice: str = "JBFqnCBsd6RMkjVDRZzb",
            max_cost_usd: float = 1.0, max_characters: int = 10000,
            price_per_1k_characters: float | None = None, audio_only: bool = False):
-    """Generate audio, synchronized video, SRT and a usage report. Silent mode costs nothing."""
+    """Generate video, captions and a per-request receipt. Silent narration has no speech charge."""
     try:
         options = RenderOptions(provider=provider, model_id=model, voice_id=voice, max_cost_usd=max_cost_usd,
                                 max_characters=max_characters, price_per_1k_characters=price_per_1k_characters,
                                 render=not audio_only)
-        result = run(load(storyboard), options, output.resolve(), output.resolve().parent / ".cache", typer.echo)
+        usage_path = storyboard.with_suffix(".usage.json")
+        result = run(load(storyboard), options, output.resolve(), output.resolve().parent / ".cache", typer.echo,
+                     planner_usage_path=usage_path if usage_path.is_file() else None)
         typer.echo(json.dumps(result, ensure_ascii=False, indent=2))
     except (ValueError, OSError) as exc:
         raise typer.BadParameter(str(exc)) from exc
